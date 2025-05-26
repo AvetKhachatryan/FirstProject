@@ -28,7 +28,7 @@ namespace FirstProject.Data.Repositories
             {
                 user.Role = UserRoleType.Admin;
             }
-            
+
             _context.Users.Add(user);
             _context.SaveChanges();
             return Task.CompletedTask;

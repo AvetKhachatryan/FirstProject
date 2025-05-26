@@ -5,11 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using FirstProject.Data.Entities;
 
-namespace FirstProject.Data.Interfaces
+namespace FirstProject.Services.Interfaces
 {
-    public interface IUserRepo
+    public interface ITokenService
     {
-        public Task AddUser(User user);
-        public List<User> GetUsers();
+        string CreateToken(User user);
     }
 }
