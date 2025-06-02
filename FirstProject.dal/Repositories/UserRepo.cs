@@ -33,5 +33,20 @@ namespace FirstProject.Data.Repositories
             _context.SaveChanges();
             return Task.CompletedTask;
         }
+
+        public Task UpdateUser(User user)
+        {
+            _context.Users.Update(user);
+            _context.SaveChanges();
+            return Task.CompletedTask;
+        }
+
+        public Task DeleteUser(string username)
+        {
+            User user = _context.Users.FirstOrDefault(x => x.Username == username);
+            _context.Users.Remove(user);
+            _context.SaveChanges();
+            return Task.CompletedTask;
+        }
     }
 }
