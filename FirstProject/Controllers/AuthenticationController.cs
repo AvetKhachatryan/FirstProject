@@ -1,14 +1,16 @@
-﻿using FirstProject.Data;
-using FirstProject.Services.Interfaces;
-using Microsoft.AspNetCore.Mvc;
-using FirstProject.Models;
-using FirstProject.Services.Services;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity.Data;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using FirstProject.Data;
+using FirstProject.Data.Entities;
+using FirstProject.Models;
+using FirstProject.Services.Interfaces;
+using FirstProject.Services.Services;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.Data;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using ForgotPasswordRequest = FirstProject.Models.ForgotPasswordRequest;
 using ResetPasswordRequest = FirstProject.Models.ResetPasswordRequest;
 
@@ -40,7 +42,7 @@ namespace FirstProject.Controllers
         }
 
         [HttpPost("login")]
-        public IActionResult Login([FromBody] AuthenticationModel model)
+        public async Task<IActionResult> Login([FromBody] AuthenticationModel model)
         {
             var user = _service.GetByUsername(model.Username);
             if (user == null)
@@ -50,14 +52,60 @@ namespace FirstProject.Controllers
             if (!passwordValid)
                 return Unauthorized("Invalid password");
 
-            var token = _tokenService.CreateToken(user);
+            var tokens = await _tokenService.GenerateTokensAsync(user);
 
-            return Ok(new { token });
+            // Сохраняем refresh токен в HttpOnly cookie
+            Response.Cookies.Append("refreshToken", tokens.refreshToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true, // только если HTTPS
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTime.UtcNow.AddDays(int.Parse(_config["Jwt:RefreshToken:ExpiresInDays"]))
+            });
+
+            return Ok(new { tokens.refreshToken, tokens.accessToken });
         }
 
 
+        [HttpPost("refresh-token")]
+        public async Task<IActionResult> RefreshToken([FromBody] string RefreshToken)
+        {
+            var refreshToken = RefreshToken;
 
-        [HttpPost("forgotPassword")]
+            if (string.IsNullOrEmpty(refreshToken))
+                return Unauthorized("No refresh token found");
+
+            var tokenInDb = _tokenService.FindByToken(refreshToken);
+
+            if (tokenInDb == null || tokenInDb.IsRevoked 
+                || tokenInDb.IsUsed || tokenInDb.Expires < DateTime.UtcNow)
+                return Unauthorized("Invalid refresh token");
+
+            // Установить как использованный
+            tokenInDb.IsUsed = true;
+            await _tokenService.UpdateToken(tokenInDb);
+
+            var user = _service.GetbyId(tokenInDb.UserId);
+            var (newAccessToken, newRefreshToken) = await _tokenService.GenerateTokensAsync(user);
+
+            // Обновить cookie с новым refresh токеном
+            //Response.Cookies.Append("refreshToken", newRefreshToken, new CookieOptions
+            //{
+            //    HttpOnly = false,
+            //    Secure = false,
+            //    SameSite = SameSiteMode.Strict,
+            //    Expires = DateTimeOffset.UtcNow.AddDays(int.Parse(_config["Jwt:RefreshToken:ExpiresInDays"]))
+            //});
+
+            return Ok(new
+            {
+                accessToken = newAccessToken,
+                refreshToken = newRefreshToken
+            });
+        }
+
+
+        [HttpPost("forgot-password")]
         public IActionResult ForgotPassword([FromBody] ForgotPasswordRequest request)
         {
             if (string.IsNullOrEmpty(request.Email))
@@ -98,7 +146,7 @@ namespace FirstProject.Controllers
         }
 
 
-        [HttpPost("resetPassword")]
+        [HttpPost("reset-password")]
         public IActionResult ResetPassword([FromBody]  ResetPasswordRequest request)
         {
             if (request.NewPassword != request.ConfirmPassword)
@@ -143,7 +191,4 @@ namespace FirstProject.Controllers
             return Content("<h2>Password Reseted!</h2>", "text/html");
         }
     }
-
-
-
 }

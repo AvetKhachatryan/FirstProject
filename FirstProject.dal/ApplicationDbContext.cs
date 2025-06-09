@@ -15,10 +15,13 @@ namespace FirstProject.Data
             optionsBuilder.UseSqlServer(@"Server = (localdb)\MSSQLLocalDB; Database = FirstProject");
         }
         public DbSet<User> Users { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new UserConfiguration());
+            modelBuilder.ApplyConfiguration(new RefreshTokenConfiguration());
         }
     }
 

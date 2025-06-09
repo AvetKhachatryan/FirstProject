@@ -3,6 +3,7 @@ using FirstProject.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using FirstProject.Data.Entities;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace FirstProject.Controllers
 {
@@ -30,6 +31,27 @@ namespace FirstProject.Controllers
         {
             _service.DeleteUser(username);
             return Task.CompletedTask;
+        }
+
+        [Authorize]
+        [HttpPatch("changeUsername")]
+        public IActionResult ChangeUsername([FromBody] string NewUsername)
+        {
+            if (string.IsNullOrWhiteSpace(NewUsername))
+                return BadRequest("Username is required.");
+
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+                return Unauthorized();
+
+            var user = _service.GetbyId(int.Parse(userId));
+            if (user == null)
+                return NotFound("User not found.");
+
+            user.Username = NewUsername;
+            _service.UpdateUser(user);
+
+            return Ok(new { message = "Username changed successfully." });
         }
     }
 }

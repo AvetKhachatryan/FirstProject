@@ -5,13 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using FirstProject.Data.Entities;
 
-namespace FirstProject.Services.Interfaces
+namespace FirstProject.Data.Interfaces
 {
-    public interface ITokenService
+    public interface ITokenRepo
     {
-        string GenerateAccessToken(User user);
-        string GenerateRefreshToken();
-        Task<(string accessToken, string refreshToken)> GenerateTokensAsync(User user);
+        Task AddRefreshToken(RefreshToken refreshTokenEntity);
         RefreshToken FindByToken(string token);
         Task UpdateToken(RefreshToken token);
     }

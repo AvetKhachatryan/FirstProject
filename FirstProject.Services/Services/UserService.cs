@@ -38,11 +38,6 @@ namespace FirstProject.Services.Services
             User user = _repo.GetUsers().FirstOrDefault(x => x.Email == email);
             return user;
         }
-        public User GetById(int id)
-        {
-            User user = _repo.GetUsers().FirstOrDefault(x => x.Id == id);
-            return user;
-        }
 
         public string GeneratePasswordResetToken(string email)
         {
@@ -105,7 +100,8 @@ namespace FirstProject.Services.Services
 
         public User GetbyId(int id)
         {
-            throw new NotImplementedException();
+            User user = _repo.GetUsers().FirstOrDefault(x => x.Id == id);
+            return user;
         }
     }
 }

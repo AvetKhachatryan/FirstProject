@@ -15,6 +15,8 @@ using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.WebHost.UseUrls("http://localhost:5001");
+
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -57,6 +59,7 @@ builder.Services.AddDbContext<ApplicationDbContext>();
 
 builder.Services.AddScoped<IUserRepo, UserRepo>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ITokenRepo, TokenRepo>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 
