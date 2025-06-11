@@ -67,24 +67,25 @@ namespace FirstProject.Services.Services
         }
 
 
-        public Task AddUser(string username, string password, string passwordConfirm, string email, UserRoleType role = UserRoleType.User)
+        public async Task<User> AddUserAsync(string username, string password, string passwordConfirm, string email, UserRoleType role = UserRoleType.User)
         {
-            User user = new User()
-            {
-
-                Username = username,
-                Password = BCrypt.Net.BCrypt.HashPassword(password),
-                Role = role, 
-                Email = email,
-            };
-
             if (_repo.GetUsers().Any(u => u.Username == username))
             {
                 throw new Exception("User with this username already exists");
             }
-            _repo.AddUser(user);
-            return Task.CompletedTask;
+
+            var user = new User
+            {
+                Username = username,
+                Password = BCrypt.Net.BCrypt.HashPassword(password),
+                Role = role,
+                Email = email
+            };
+
+            await _repo.AddUserAsync(user);  // Асинхронный метод добавления в репозиторий
+            return user;
         }
+
 
         public Task UpdateUser(User user)
         {

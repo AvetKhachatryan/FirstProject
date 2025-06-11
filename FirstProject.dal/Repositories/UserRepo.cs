@@ -22,7 +22,8 @@ namespace FirstProject.Data.Repositories
         {
             return _context.Users.ToList();
         }
-        public Task AddUser(User user)
+
+        public async Task AddUserAsync(User user)
         {
             if (GetUsers().Count == 0)
             {
@@ -30,9 +31,9 @@ namespace FirstProject.Data.Repositories
             }
 
             _context.Users.Add(user);
-            _context.SaveChanges();
-            return Task.CompletedTask;
+            await _context.SaveChangesAsync();
         }
+
 
         public Task UpdateUser(User user)
         {

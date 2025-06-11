@@ -10,7 +10,7 @@ namespace FirstProject.Services.Interfaces
 {
     public interface IUserService
     {
-        public Task AddUser(string Username, string Password, string passwordConfirm, string Email, UserRoleType Role = UserRoleType.User);
+        public Task<User> AddUserAsync(string Username, string Password, string passwordConfirm, string Email, UserRoleType Role = UserRoleType.User);
         public Task UpdateUser(User user);
         public Task DeleteUser(string Username);
         public User GetByUsername(string username);
