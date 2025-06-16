@@ -21,10 +21,10 @@ namespace FirstProject.Controllers
     public class AuthenticationController : ControllerBase
     {
 
-        private IUserService _service;
-        private ITokenService _tokenService;
-        private IEmailService _emailService;
-        private IConfiguration _config;
+        private readonly IUserService _service;
+        private readonly ITokenService _tokenService;
+        private readonly IEmailService _emailService;
+        private readonly IConfiguration _config;
         private readonly ILogger<UserController> _logger;
         public AuthenticationController(IUserService service, IEmailService emailService,
                                 ITokenService tokenService, IConfiguration config, ILogger<UserController> logger)

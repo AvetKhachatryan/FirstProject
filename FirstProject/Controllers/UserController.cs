@@ -12,7 +12,7 @@ namespace FirstProject.Controllers
     [Route("api/[controller]")]
     public class UserController : Controller
     {
-        private IUserService _service;
+        private readonly IUserService _service;
         private readonly ILogger<UserController> _logger;
         public UserController(IUserService service, ILogger<UserController> logger)
         {

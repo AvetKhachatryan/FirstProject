@@ -22,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\FirstProject.dal\FirstProject.Data.csproj" />
     <ProjectReference Include="..\FirstProject.Services\FirstProject.Services.csproj" />
+    <ProjectReference Include="..\FirstProject.Tests\FirstProject.Tests.csproj" />
   </ItemGroup>
 
 </Project>
